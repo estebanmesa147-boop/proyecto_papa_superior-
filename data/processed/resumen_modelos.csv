@@ -1,0 +1,4 @@
+Modelo,R²,MAE,RMSE
+M1: solo abastecimiento,0.01,391.0,503.0
+M2: abastecimiento + IPC,0.0826,389.0,485.0
+M3: completo (+ lag + estacionalidad),0.7585,190.0,249.0
