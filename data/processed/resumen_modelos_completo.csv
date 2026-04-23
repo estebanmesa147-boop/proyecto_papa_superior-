@@ -1,0 +1,6 @@
+Modelo,R²,MAE,RMSE
+M1: solo abastecimiento,0.0128,389.0,501.0
+M2: abastecimiento + IPC,0.0854,387.0,483.0
+M3: + lag + estacionalidad,0.7599,188.0,247.0
+M4: + costos de producción,0.6856,220.0,283.0
+M5: completo (costos + lag + estacionalidad),0.8525,150.0,194.0
