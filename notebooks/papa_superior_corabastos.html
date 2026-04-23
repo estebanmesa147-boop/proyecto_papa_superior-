@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Qué mueve el precio de la papa? — Corabastos 2019–2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --tierra: #3d2b1f;
+    --tierra-claro: #6b4226;
+    --campo: #2d4a2d;
+    --campo-claro: #4a7c4a;
+    --paja: #d4a847;
+    --paja-claro: #f0d080;
+    --crema: #f5f0e8;
+    --crema-oscuro: #e8dfc8;
+    --blanco: #fdfaf5;
+    --gris: #8a7a6a;
+    --rojo-alerta: #c0392b;
+    --azul-dato: #2c5f8a;
+    --papel: #faf6ef;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--papel);
+    color: var(--tierra);
+    font-family: 'Libre Baskerville', serif;
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    background: var(--tierra);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero-texture {
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,0.015) 2px,
+        rgba(255,255,255,0.015) 4px
+      );
+    pointer-events: none;
+  }
+
+  .hero-accent {
+    position: absolute;
+    top: 0; right: 0;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(135deg, transparent 40%, rgba(212,168,71,0.08) 100%);
+    pointer-events: none;
+  }
+
+  .hero-corner {
+    position: absolute;
+    bottom: -2px; left: 0; right: 0;
+    height: 80px;
+    background: var(--papel);
+    clip-path: ellipse(55% 100% at 50% 100%);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 8vw;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--paja);
+    border: 1px solid rgba(212,168,71,0.4);
+    padding: 6px 14px;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 7vw, 6.5rem);
+    font-weight: 900;
+    line-height: 1.0;
+    color: var(--crema);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.4s forwards;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--paja);
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: rgba(245,240,232,0.7);
+    max-width: 560px;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.6s forwards;
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.8s forwards;
+  }
+
+  .hero-meta-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: rgba(245,240,232,0.5);
+    letter-spacing: 0.05em;
+  }
+
+  .hero-meta-item strong {
+    color: var(--paja-claro);
+    display: block;
+    font-size: 0.8rem;
+    margin-bottom: 2px;
+  }
+
+  .hero-stat-bar {
+    position: absolute;
+    right: 8vw;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    opacity: 0;
+    animation: fadeLeft 1s 1s forwards;
+  }
+
+  .hero-stat {
+    text-align: right;
+  }
+
+  .hero-stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--paja);
+    line-height: 1;
+  }
+
+  .hero-stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: rgba(245,240,232,0.4);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .hero-divider {
+    width: 1px;
+    height: 40px;
+    background: rgba(212,168,71,0.2);
+    margin-left: auto;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250,246,239,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--crema-oscuro);
+    padding: 0 8vw;
+  }
+
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--tierra);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gris);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--tierra); }
+
+  /* ── SECTIONS COMMON ── */
+  .section {
+    padding: 100px 8vw;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--campo-claro);
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--tierra);
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title em {
+    font-style: italic;
+    color: var(--campo);
+  }
+
+  .section-lead {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--gris);
+    max-width: 640px;
+    margin-bottom: 3rem;
+  }
+
+  /* ── RESUMEN EJECUTIVO ── */
+  .resumen {
+    background: var(--tierra);
+    color: var(--crema);
+  }
+
+  .resumen .section-eyebrow { color: var(--paja); }
+  .resumen .section-title { color: var(--crema); }
+  .resumen .section-lead { color: rgba(245,240,232,0.65); }
+
+  .hipotesis-box {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(212,168,71,0.2);
+    border-left: 4px solid var(--paja);
+    padding: 2rem 2.5rem;
+    margin-bottom: 3rem;
+    font-style: italic;
+    font-size: 1.15rem;
+    line-height: 1.7;
+    color: var(--crema);
+  }
+
+  .hipotesis-box strong {
+    font-style: normal;
+    color: var(--paja);
+  }
+
+  .modelos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5px;
+    background: rgba(212,168,71,0.1);
+    border: 1px solid rgba(212,168,71,0.15);
+  }
+
+  .modelo-card {
+    background: rgba(61,43,31,0.8);
+    padding: 2rem 1.5rem;
+    transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .modelo-card:hover {
+    background: rgba(61,43,31,0.95);
+  }
+
+  .modelo-card.destacado {
+    background: rgba(45,74,45,0.6);
+  }
+
+  .modelo-card.destacado::before {
+    content: '★ MEJOR';
+    position: absolute;
+    top: 12px; right: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    color: var(--paja);
+    border: 1px solid var(--paja);
+    padding: 3px 8px;
+  }
+
+  .modelo-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(212,168,71,0.6);
+    margin-bottom: 0.8rem;
+  }
+
+  .modelo-r2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--paja);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .modelo-r2 span {
+    font-size: 1.2rem;
+    opacity: 0.6;
+  }
+
+  .modelo-vars {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: rgba(245,240,232,0.55);
+    margin-bottom: 0.8rem;
+  }
+
+  .modelo-desc {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: rgba(245,240,232,0.4);
+    font-style: italic;
+  }
+
+  /* ── DATOS DESTACADOS ── */
+  .stats-ribbon {
+    background: var(--campo);
+    padding: 50px 8vw;
+  }
+
+  .stats-ribbon .container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+  }
+
+  .stat-block {
+    background: rgba(45,74,45,0.6);
+    border-top: 3px solid transparent;
+    padding: 2rem;
+    transition: border-color 0.3s;
+  }
+
+  .stat-block:hover { border-color: var(--paja); }
+
+  .stat-block-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--paja-claro);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-block-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.45);
+  }
+
+  .stat-block-sub {
+    font-size: 0.8rem;
+    color: rgba(245,240,232,0.5);
+    margin-top: 0.5rem;
+    line-height: 1.4;
+  }
+
+  /* ── VISUALIZACIONES ── */
+  .charts-section { background: var(--blanco); }
+
+  .chart-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--crema-oscuro);
+    margin-bottom: 3rem;
+    overflow-x: auto;
+  }
+
+  .chart-tab {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 12px 20px;
+    cursor: pointer;
+    color: var(--gris);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    white-space: nowrap;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .chart-tab.active {
+    color: var(--tierra);
+    border-bottom-color: var(--campo);
+  }
+
+  .chart-panel { display: none; }
+  .chart-panel.active { display: block; }
+
+  .chart-wrap {
+    position: relative;
+    height: 400px;
+    background: var(--papel);
+    border: 1px solid var(--crema-oscuro);
+    padding: 2rem;
+  }
+
+  .chart-caption {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--gris);
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--crema-oscuro);
+    font-style: italic;
+  }
+
+  /* ── ESTACIONALIDAD ── */
+  .seasonal-section { background: var(--crema); }
+
+  .meses-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 3px;
+    margin-bottom: 2rem;
+  }
+
+  .mes-card {
+    background: var(--blanco);
+    padding: 1.2rem 1rem;
+    text-align: center;
+    position: relative;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .mes-card:hover {
+    background: var(--tierra);
+    transform: translateY(-3px);
+  }
+
+  .mes-card:hover .mes-precio,
+  .mes-card:hover .mes-nombre { color: var(--crema); }
+
+  .mes-card.caro { border-bottom-color: var(--rojo-alerta); }
+  .mes-card.barato { border-bottom-color: var(--campo-claro); }
+
+  .mes-bar {
+    height: 4px;
+    border-radius: 2px;
+    margin: 0 auto 0.8rem;
+  }
+
+  .mes-nombre {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gris);
+    margin-bottom: 0.4rem;
+  }
+
+  .mes-precio {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--tierra);
+  }
+
+  /* ── HALLAZGOS ── */
+  .hallazgos-section { background: var(--papel); }
+
+  .hallazgos-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .hallazgo {
+    background: var(--blanco);
+    padding: 3rem;
+    border-top: 4px solid var(--crema-oscuro);
+    transition: border-color 0.3s;
+  }
+
+  .hallazgo:hover { border-color: var(--campo); }
+
+  .hallazgo-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--crema-oscuro);
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+
+  .hallazgo-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--tierra);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+
+  .hallazgo-text {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--gris);
+  }
+
+  .hallazgo-text strong { color: var(--tierra); }
+
+  /* ── TIMELINE ── */
+  .timeline-section { background: var(--tierra); }
+  .timeline-section .section-title { color: var(--crema); }
+  .timeline-section .section-eyebrow { color: var(--paja); }
+
+  .timeline {
+    position: relative;
+    padding-left: 3rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 1px;
+    background: rgba(212,168,71,0.2);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-bottom: 3rem;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.5s;
+  }
+
+  .timeline-item.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: -3.35rem;
+    top: 4px;
+    width: 14px;
+    height: 14px;
+    background: var(--paja);
+    border: 3px solid var(--tierra);
+    border-radius: 50%;
+  }
+
+  .timeline-year {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    color: var(--paja);
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--crema);
+    margin-bottom: 0.8rem;
+    line-height: 1.3;
+  }
+
+  .timeline-text {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: rgba(245,240,232,0.55);
+    max-width: 580px;
+  }
+
+  .timeline-price {
+    display: inline-block;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--paja);
+    margin-top: 0.8rem;
+  }
+
+  /* ── COMPARACIÓN ── */
+  .comparacion-section { background: var(--crema); }
+
+  .centrales-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    margin-bottom: 2rem;
+  }
+
+  .central-card {
+    background: var(--blanco);
+    padding: 3rem;
+  }
+
+  .central-card.primary { background: var(--tierra); color: var(--crema); }
+  .central-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .central-card.primary .central-name { color: var(--paja); }
+
+  .central-location {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    color: var(--gris);
+  }
+
+  .central-card.primary .central-location { color: rgba(245,240,232,0.4); }
+
+  .central-stat {
+    margin-bottom: 1.5rem;
+  }
+
+  .central-stat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--campo);
+    line-height: 1;
+  }
+
+  .central-card.primary .central-stat-val { color: var(--paja); }
+
+  .central-stat-desc {
+    font-size: 0.8rem;
+    color: var(--gris);
+    margin-top: 4px;
+  }
+
+  .central-card.primary .central-stat-desc { color: rgba(245,240,232,0.4); }
+
+  /* ── CONCLUSIONES ── */
+  .conclusiones-section { background: var(--campo); }
+  .conclusiones-section .section-title { color: var(--crema); }
+  .conclusiones-section .section-eyebrow { color: var(--paja-claro); }
+  .conclusiones-section .section-lead { color: rgba(245,240,232,0.65); }
+
+  .conclusiones-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .conclusion-item {
+    background: rgba(45,74,45,0.5);
+    padding: 2.5rem;
+    border-top: 3px solid rgba(240,208,128,0.2);
+    transition: border-color 0.3s;
+  }
+
+  .conclusion-item:hover { border-top-color: var(--paja); }
+
+  .conclusion-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .conclusion-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--paja-claro);
+    margin-bottom: 0.8rem;
+    line-height: 1.3;
+  }
+
+  .conclusion-text {
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: rgba(245,240,232,0.55);
+  }
+
+  /* ── EQUIPO ── */
+  .equipo-section { background: var(--papel); }
+
+  .equipo-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+  }
+
+  .equipo-card {
+    background: var(--blanco);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    border-top: 3px solid var(--crema-oscuro);
+    transition: border-color 0.3s;
+  }
+
+  .equipo-card:hover { border-color: var(--campo); }
+
+  .equipo-avatar {
+    width: 60px;
+    height: 60px;
+    background: var(--crema-oscuro);
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--tierra-claro);
+  }
+
+  .equipo-nombre {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--tierra);
+    margin-bottom: 0.3rem;
+  }
+
+  .equipo-rol {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--tierra);
+    padding: 50px 8vw;
+    text-align: center;
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--paja);
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-info {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: rgba(245,240,232,0.3);
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--paja);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+  }
+
+  .footer-link:hover { text-decoration: underline; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeLeft {
+    from { opacity: 0; transform: translate(30px, -50%); }
+    to   { opacity: 1; transform: translate(0, -50%); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s, transform 0.7s;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .hero-stat-bar { display: none; }
+    .modelos-grid { grid-template-columns: repeat(2, 1fr); }
+    .stats-ribbon .container { grid-template-columns: repeat(2, 1fr); }
+    .meses-grid { grid-template-columns: repeat(4, 1fr); }
+    .hallazgos-grid { grid-template-columns: 1fr; }
+    .centrales-compare { grid-template-columns: 1fr; }
+    .conclusiones-grid { grid-template-columns: 1fr; }
+    .equipo-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 600px) {
+    .section { padding: 60px 6vw; }
+    .meses-grid { grid-template-columns: repeat(3, 1fr); }
+    .modelos-grid { grid-template-columns: 1fr; }
+    .equipo-grid { grid-template-columns: repeat(2, 1fr); }
+    nav { padding: 0 5vw; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">Papa Superior · Corabastos</div>
+    <ul class="nav-links">
+      <li><a href="#resumen">Resumen</a></li>
+      <li><a href="#datos">Datos</a></li>
+      <li><a href="#estacionalidad">Estacionalidad</a></li>
+      <li><a href="#modelos">Modelos</a></li>
+      <li><a href="#conclusiones">Conclusiones</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-texture"></div>
+  <div class="hero-accent"></div>
+
+  <div class="hero-content">
+    <div class="hero-tag">Análisis de datos · Corabastos · 2019–2025</div>
+    <h1 class="hero-title">¿Qué mueve el<br><em>precio</em> de la papa?</h1>
+    <p class="hero-subtitle">Análisis y modelado del precio de la Papa Superior en la central mayorista más grande de Colombia. Seis años de datos, cinco modelos, una respuesta que contradice la creencia popular.</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <strong>Fuente principal</strong>
+        Observatorio FNFP
+      </div>
+      <div class="hero-meta-item">
+        <strong>Período</strong>
+        Enero 2019 – Diciembre 2025
+      </div>
+      <div class="hero-meta-item">
+        <strong>Programa</strong>
+        Bootcamp Análisis de Datos 2026
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-stat-bar">
+    <div class="hero-stat">
+      <div class="hero-stat-num">85%</div>
+      <div class="hero-stat-label">R² Modelo completo</div>
+    </div>
+    <div class="hero-divider"></div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">84</div>
+      <div class="hero-stat-label">Meses analizados</div>
+    </div>
+    <div class="hero-divider"></div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">5</div>
+      <div class="hero-stat-label">Modelos evaluados</div>
+    </div>
+  </div>
+
+  <div class="hero-corner"></div>
+</section>
+
+<!-- ── RESUMEN EJECUTIVO ── -->
+<section class="section resumen" id="resumen">
+  <div class="container">
+    <div class="section-eyebrow reveal">Resumen ejecutivo</div>
+    <h2 class="section-title reveal">La hipótesis no<br>se sostiene con los datos.</h2>
+
+    <div class="hipotesis-box reveal">
+      <strong>Hipótesis inicial:</strong> «A mayor abastecimiento, menor precio.» Es decir, cuando llega más papa al mercado, el precio baja. Este proyecto pone a prueba esa hipótesis con datos reales de Corabastos entre 2019 y 2025.
+    </div>
+
+    <p class="section-lead reveal">Los resultados son contundentes: el volumen de oferta explica apenas el 1% de la variación del precio. Lo que realmente importa son la inercia del precio, la estacionalidad y los costos de producción en finca.</p>
+
+    <div class="modelos-grid reveal">
+      <div class="modelo-card">
+        <div class="modelo-label">M1</div>
+        <div class="modelo-r2">0.01<span> R²</span></div>
+        <div class="modelo-vars">Solo abastecimiento</div>
+        <div class="modelo-desc">El abastecimiento casi no explica el precio.</div>
+      </div>
+      <div class="modelo-card">
+        <div class="modelo-label">M2</div>
+        <div class="modelo-r2">0.08<span> R²</span></div>
+        <div class="modelo-vars">+ Inflación (IPC)</div>
+        <div class="modelo-desc">La inflación ayuda poco por sí sola.</div>
+      </div>
+      <div class="modelo-card">
+        <div class="modelo-label">M3</div>
+        <div class="modelo-r2">0.76<span> R²</span></div>
+        <div class="modelo-vars">+ Precio anterior + mes</div>
+        <div class="modelo-desc">El precio pasado y la estacionalidad son clave.</div>
+      </div>
+      <div class="modelo-card">
+        <div class="modelo-label">M4</div>
+        <div class="modelo-r2">0.69<span> R²</span></div>
+        <div class="modelo-vars">+ Costos de producción</div>
+        <div class="modelo-desc">Los costos solos tampoco son suficientes.</div>
+      </div>
+      <div class="modelo-card destacado">
+        <div class="modelo-label">M5</div>
+        <div class="modelo-r2">0.85<span> R²</span></div>
+        <div class="modelo-vars">Todo junto</div>
+        <div class="modelo-desc">El modelo completo explica el 85% del precio.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS RIBBON ── -->
+<div class="stats-ribbon" id="datos">
+  <div class="container">
+    <div class="stat-block reveal">
+      <div class="stat-block-num">$2.651</div>
+      <div class="stat-block-label">Precio máximo histórico</div>
+      <div class="stat-block-sub">Julio 2024 · Crisis de costos de producción</div>
+    </div>
+    <div class="stat-block reveal">
+      <div class="stat-block-num">$480</div>
+      <div class="stat-block-label">Precio mínimo histórico</div>
+      <div class="stat-block-sub">Diciembre 2020 · Impacto del COVID-19</div>
+    </div>
+    <div class="stat-block reveal">
+      <div class="stat-block-num">322K</div>
+      <div class="stat-block-label">Ton. récord (2022–2023)</div>
+      <div class="stat-block-sub">Mayor abastecimiento del período analizado</div>
+    </div>
+    <div class="stat-block reveal">
+      <div class="stat-block-num">$150</div>
+      <div class="stat-block-label">Error promedio del M5</div>
+      <div class="stat-block-sub">El mejor modelo se equivoca solo $150/kg</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── VISUALIZACIONES ── -->
+<section class="section charts-section">
+  <div class="container">
+    <div class="section-eyebrow reveal">Análisis exploratorio</div>
+    <h2 class="section-title reveal">Los datos cuentan<br><em>otra historia.</em></h2>
+
+    <div class="chart-tabs reveal">
+      <button class="chart-tab active" onclick="switchTab('precios')">Precio anual</button>
+      <button class="chart-tab" onclick="switchTab('abasto')">Abastecimiento</button>
+      <button class="chart-tab" onclick="switchTab('r2')">Comparativa R²</button>
+      <button class="chart-tab" onclick="switchTab('correlacion')">Abasto vs Precio</button>
+    </div>
+
+    <div id="tab-precios" class="chart-panel active reveal">
+      <div class="chart-wrap">
+        <canvas id="chartPrecios"></canvas>
+      </div>
+      <p class="chart-caption">Precio promedio anual de la papa Superior en Corabastos. La tendencia alcista sostenida desde 2021 refleja la inflación post-pandemia y el alza en costos de producción, con un pico notable en 2024 y caída pronunciada en 2025.</p>
+    </div>
+
+    <div id="tab-abasto" class="chart-panel reveal">
+      <div class="chart-wrap">
+        <canvas id="chartAbasto"></canvas>
+      </div>
+      <p class="chart-caption">Toneladas totales de papa Superior que llegaron a Corabastos por año. El COVID-19 redujo el abastecimiento en 2020. La recuperación fue progresiva hasta alcanzar un pico en 2022–2023, con descenso posterior.</p>
+    </div>
+
+    <div id="tab-r2" class="chart-panel reveal">
+      <div class="chart-wrap">
+        <canvas id="chartR2"></canvas>
+      </div>
+      <p class="chart-caption">Comparativa del R² de los cinco modelos evaluados. El salto entre M2 y M3 es el más dramático: agregar el precio del mes anterior y la estacionalidad eleva la capacidad explicativa del 8% al 76%.</p>
+    </div>
+
+    <div id="tab-correlacion" class="chart-panel reveal">
+      <div class="chart-wrap">
+        <canvas id="chartCorr"></canvas>
+      </div>
+      <p class="chart-caption">Relación entre toneladas abastecidas y precio promedio mensual (2019–2025). La nube de puntos no muestra ningún patrón claro, confirmando que la correlación es prácticamente inexistente (r ≈ 0).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── ESTACIONALIDAD ── -->
+<section class="section seasonal-section" id="estacionalidad">
+  <div class="container">
+    <div class="section-eyebrow reveal">Estacionalidad</div>
+    <h2 class="section-title reveal">Cada mes tiene<br><em>su propio precio.</em></h2>
+    <p class="section-lead reveal">El análisis histórico 2019–2025 revela un patrón estacional consistente: el primer semestre tiende a ser más caro, con un pico en abril. El segundo semestre es más barato, con el valle en septiembre.</p>
+
+    <div class="meses-grid reveal">
+      <!-- Precios promedio históricos por mes -->
+      <div class="mes-card caro">
+        <div class="mes-bar" style="width:80%;background:#c0392b;height:4px"></div>
+        <div class="mes-nombre">Enero</div>
+        <div class="mes-precio">$1.290</div>
+      </div>
+      <div class="mes-card caro">
+        <div class="mes-bar" style="width:85%;background:#c0392b;height:4px"></div>
+        <div class="mes-nombre">Febrero</div>
+        <div class="mes-precio">$1.350</div>
+      </div>
+      <div class="mes-card caro">
+        <div class="mes-bar" style="width:88%;background:#c0392b;height:4px"></div>
+        <div class="mes-nombre">Marzo</div>
+        <div class="mes-precio">$1.380</div>
+      </div>
+      <div class="mes-card caro" style="background:#fff8f8">
+        <div class="mes-bar" style="width:100%;background:#c0392b;height:4px"></div>
+        <div class="mes-nombre">Abril ★</div>
+        <div class="mes-precio" style="color:#c0392b">$1.413</div>
+      </div>
+      <div class="mes-card">
+        <div class="mes-bar" style="width:70%;background:#d4a847;height:4px"></div>
+        <div class="mes-nombre">Mayo</div>
+        <div class="mes-precio">$1.170</div>
+      </div>
+      <div class="mes-card">
+        <div class="mes-bar" style="width:65%;background:#d4a847;height:4px"></div>
+        <div class="mes-nombre">Junio</div>
+        <div class="mes-precio">$1.090</div>
+      </div>
+      <div class="mes-card">
+        <div class="mes-bar" style="width:62%;background:#4a7c4a;height:4px"></div>
+        <div class="mes-nombre">Julio</div>
+        <div class="mes-precio">$1.050</div>
+      </div>
+      <div class="mes-card barato">
+        <div class="mes-bar" style="width:56%;background:#2d4a2d;height:4px"></div>
+        <div class="mes-nombre">Agosto</div>
+        <div class="mes-precio">$960</div>
+      </div>
+      <div class="mes-card barato" style="background:#f8fff8">
+        <div class="mes-bar" style="width:55%;background:#2d4a2d;height:4px"></div>
+        <div class="mes-nombre">Sept. ★</div>
+        <div class="mes-precio" style="color:#2d4a2d">$928</div>
+      </div>
+      <div class="mes-card">
+        <div class="mes-bar" style="width:60%;background:#4a7c4a;height:4px"></div>
+        <div class="mes-nombre">Octubre</div>
+        <div class="mes-precio">$1.010</div>
+      </div>
+      <div class="mes-card">
+        <div class="mes-bar" style="width:63%;background:#d4a847;height:4px"></div>
+        <div class="mes-nombre">Noviembre</div>
+        <div class="mes-precio">$1.060</div>
+      </div>
+      <div class="mes-card">
+        <div class="mes-bar" style="width:65%;background:#d4a847;height:4px"></div>
+        <div class="mes-nombre">Diciembre</div>
+        <div class="mes-precio">$1.080</div>
+      </div>
+    </div>
+
+    <p style="font-size:0.8rem;font-family:'DM Mono',monospace;letter-spacing:0.05em;color:var(--gris);margin-top:1rem;">
+      ★ Abril = mes más caro ($1.413/kg) · ★ Septiembre = mes más barato ($928/kg) · Precios promedio 2019–2025
+    </p>
+  </div>
+</section>
+
+<!-- ── HALLAZGOS ── -->
+<section class="section hallazgos-section" id="modelos">
+  <div class="container">
+    <div class="section-eyebrow reveal">Hallazgos principales</div>
+    <h2 class="section-title reveal">Cuatro lecciones<br><em>del mercado.</em></h2>
+
+    <div class="hallazgos-grid reveal">
+      <div class="hallazgo">
+        <div class="hallazgo-num">01</div>
+        <div class="hallazgo-title">El abastecimiento casi no predice el precio</div>
+        <div class="hallazgo-text">Con un R² de apenas <strong>0.01</strong>, el volumen de papa que llega a Corabastos explica prácticamente nada de la variación del precio. La hipótesis de oferta-demanda simple no se cumple en este mercado.</div>
+      </div>
+      <div class="hallazgo">
+        <div class="hallazgo-num">02</div>
+        <div class="hallazgo-title">El precio de este mes depende del precio del mes anterior</div>
+        <div class="hallazgo-text">Con un coeficiente de <strong>0.84</strong>, el precio del mes anterior es la variable más poderosa del análisis. El precio tiene mucha inercia: si estuvo caro este mes, probablemente sigue caro el siguiente.</div>
+      </div>
+      <div class="hallazgo">
+        <div class="hallazgo-num">03</div>
+        <div class="hallazgo-title">La estacionalidad es predecible y consistente</div>
+        <div class="hallazgo-text">El patrón estacional se repite con notable consistencia en todos los años del período. El <strong>primer semestre</strong> es históricamente más caro (~$200/kg por encima de la tendencia) y el segundo más barato (~$230/kg por debajo).</div>
+      </div>
+      <div class="hallazgo">
+        <div class="hallazgo-num">04</div>
+        <div class="hallazgo-title">Los costos de producción completan el panorama</div>
+        <div class="hallazgo-text">Al agregar fertilizantes, transporte y mano de obra al modelo, el R² salta a <strong>0.85</strong>. Cuando los insumos del agricultor se encarecen, ese costo se traslada al precio mayorista, aunque con un rezago temporal.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TIMELINE ── -->
+<section class="section timeline-section">
+  <div class="container">
+    <div class="section-eyebrow reveal">Cronología de eventos</div>
+    <h2 class="section-title reveal">Seis años de<br><em>historia del precio.</em></h2>
+
+    <div class="timeline">
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2019</div>
+        <div class="timeline-title">Línea base estable</div>
+        <div class="timeline-text">Año de referencia. El precio promedio ronda los $800/kg con volatilidad moderada. El abastecimiento es regular y los costos de producción se mantienen dentro de rangos históricos normales.</div>
+        <div class="timeline-price">Precio promedio: ~$800/kg</div>
+      </div>
+
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2020</div>
+        <div class="timeline-title">El COVID-19 derrumba el precio</div>
+        <div class="timeline-text">El cierre de restaurantes y la restricción de movilidad en cuarentena redujeron dramáticamente la demanda en plazas de mercado. El precio de diciembre tocó el mínimo histórico del período. El abastecimiento también cayó a ~240.000 toneladas.</div>
+        <div class="timeline-price">Mínimo: $480/kg (dic 2020)</div>
+      </div>
+
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2021 – 2022</div>
+        <div class="timeline-title">Rebote post-pandemia y primer pico</div>
+        <div class="timeline-text">La reapertura económica reactivó la demanda. La inflación global golpeó los precios de fertilizantes, empaques y transporte. Un paro camionero agravó la situación. El precio escaló hasta ~$2.500/kg, un residuo de $1.000/kg sobre la tendencia normal.</div>
+        <div class="timeline-price">Pico: ~$2.500/kg (2022)</div>
+      </div>
+
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2023</div>
+        <div class="timeline-title">Normalización relativa</div>
+        <div class="timeline-text">El abastecimiento alcanzó su pico del período (~322.000 toneladas). Los precios se mantuvieron en niveles altos pero con menor volatilidad respecto a 2022. La tendencia suavizó su pendiente ascendente.</div>
+        <div class="timeline-price">Abasto récord: ~322.000 ton</div>
+      </div>
+
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2024</div>
+        <div class="timeline-title">Segundo pico: alza de costos</div>
+        <div class="timeline-text">Nuevo episodio de precios altos impulsado por el alza en costos de producción. El precio en julio alcanzó el máximo histórico del período: $2.651/kg. El residuo del modelo fue de ~$500/kg sobre la tendencia esperada.</div>
+        <div class="timeline-price">Máximo histórico: $2.651/kg (jul 2024)</div>
+      </div>
+
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2025</div>
+        <div class="timeline-title">Caída pronunciada</div>
+        <div class="timeline-text">El precio cayó de forma pronunciada hacia ~$1.000/kg hacia finales del año, cerrando la tendencia alcista que comenzó en 2021. Los costos de producción moderaron su crecimiento, aliviando presión sobre los precios en Corabastos.</div>
+        <div class="timeline-price">Tendencia: ~$1.000/kg (dic 2025)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── COMPARACIÓN ── -->
+<section class="section comparacion-section">
+  <div class="container">
+    <div class="section-eyebrow reveal">Análisis comparativo</div>
+    <h2 class="section-title reveal">Corabastos vs<br><em>Coomproriente</em></h2>
+    <p class="section-lead reveal">Para el período 2024–2025, comparamos el comportamiento de la papa Superior en la central mayorista de Bogotá versus la de Boyacá, el principal departamento productor del país.</p>
+
+    <div class="centrales-compare reveal">
+      <div class="central-card primary">
+        <div class="central-name">Corabastos</div>
+        <div class="central-location">Bogotá D.C. · Central de consumo</div>
+        <div class="central-stat">
+          <div class="central-stat-val">~20×</div>
+          <div class="central-stat-desc">más volumen que Coomproriente</div>
+        </div>
+        <div class="central-stat">
+          <div class="central-stat-val">~$1.400</div>
+          <div class="central-stat-desc">precio promedio mensual 2024–2025</div>
+        </div>
+        <div class="central-stat">
+          <div class="central-stat-val">Mayor</div>
+          <div class="central-stat-desc">plaza de distribución nacional</div>
+        </div>
+      </div>
+      <div class="central-card">
+        <div class="central-name">Coomproriente</div>
+        <div class="central-location">Boyacá · Central productora</div>
+        <div class="central-stat">
+          <div class="central-stat-val">Boyacá</div>
+          <div class="central-stat-desc">principal dpto. abastecedor de Corabastos</div>
+        </div>
+        <div class="central-stat">
+          <div class="central-stat-val">Similar</div>
+          <div class="central-stat-desc">patrón estacional en precios</div>
+        </div>
+        <div class="central-stat">
+          <div class="central-stat-val">Duitama</div>
+          <div class="central-stat-desc">precio de referencia usado como proxy</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal" style="background:var(--blanco);padding:2.5rem;border-left:4px solid var(--campo);margin-top:3px;">
+      <p style="font-size:0.9rem;line-height:1.7;color:var(--gris);font-style:italic;">
+        <strong style="color:var(--tierra);font-style:normal;">Hallazgo clave:</strong> Aunque Corabastos maneja aproximadamente 20 veces más volumen que Coomproriente, ambas centrales responden a los mismos factores estructurales del mercado. Los patrones estacionales de precio son similares, lo que sugiere que los precios están determinados por condiciones sistémicas — inflación, costos de producción, inercia — más que por el volumen local de cada plaza.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONCLUSIONES ── -->
+<section class="section conclusiones-section" id="conclusiones">
+  <div class="container">
+    <div class="section-eyebrow reveal">Conclusiones</div>
+    <h2 class="section-title reveal">Lo que los datos<br><em>nos enseñan.</em></h2>
+    <p class="section-lead reveal">El mercado de papa Superior en Corabastos es más complejo de lo que se pensaba. Estas son las implicaciones prácticas del análisis.</p>
+
+    <div class="conclusiones-grid reveal">
+      <div class="conclusion-item">
+        <span class="conclusion-icon">🌱</span>
+        <div class="conclusion-title">Para los agricultores</div>
+        <div class="conclusion-text">Los meses de enero a abril son históricamente los más rentables para vender papa Superior en Corabastos. Planificar las cosechas para llegar al mercado en el primer semestre puede significar hasta $485/kg más de ingreso respecto a vender en septiembre.</div>
+      </div>
+      <div class="conclusion-item">
+        <span class="conclusion-icon">📊</span>
+        <div class="conclusion-title">Para la política pública</div>
+        <div class="conclusion-text">Las intervenciones de estabilización deben considerar la inercia del precio. Bajar el precio un mes tiene efecto multiplicador sobre los siguientes. Los esfuerzos en reducir costos de fertilizantes y transporte tienen mayor impacto que manipular el volumen de oferta.</div>
+      </div>
+      <div class="conclusion-item">
+        <span class="conclusion-icon">🔬</span>
+        <div class="conclusion-title">Para futuros análisis</div>
+        <div class="conclusion-text">Modelos de series de tiempo como ARIMA o Prophet podrían mejorar el poder predictivo aprovechando la fuerte autocorrelación encontrada. Incluir variables climáticas (precipitación, temperatura en zonas productoras) podría explicar parte del residuo de 2022 y 2024.</div>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:2px;background:rgba(45,74,45,0.4);padding:3rem;border-top:3px solid var(--paja);">
+      <p style="font-family:'Playfair Display',serif;font-style:italic;font-size:1.3rem;line-height:1.6;color:var(--crema);max-width:700px;">
+        «El precio de la papa no solo depende de cuánta papa llega al mercado. La inercia del precio, la estacionalidad y los costos de producción explican mucho más que el volumen de oferta en plaza.»
+      </p>
+    </div>
+
+    <div class="reveal" style="margin-top:3rem;">
+      <p style="font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.1em;color:rgba(245,240,232,0.4);margin-bottom:1rem;text-transform:uppercase;">Limitaciones del estudio</p>
+      <ul style="list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+        <li style="font-size:0.83rem;line-height:1.6;color:rgba(245,240,232,0.45);padding-left:1.2em;position:relative;">
+          <span style="position:absolute;left:0;color:var(--paja)">→</span>
+          El análisis es explicativo, no predictivo — el uso del precio anterior limita la proyección más allá de un mes.
+        </li>
+        <li style="font-size:0.83rem;line-height:1.6;color:rgba(245,240,232,0.45);padding-left:1.2em;position:relative;">
+          <span style="position:absolute;left:0;color:var(--paja)">→</span>
+          No se incluyeron variables climáticas (precipitación, temperatura en zonas productoras).
+        </li>
+        <li style="font-size:0.83rem;line-height:1.6;color:rgba(245,240,232,0.45);padding-left:1.2em;position:relative;">
+          <span style="position:absolute;left:0;color:var(--paja)">→</span>
+          El análisis se limita a la variedad Superior en Corabastos — otras variedades pueden comportarse diferente.
+        </li>
+        <li style="font-size:0.83rem;line-height:1.6;color:rgba(245,240,232,0.45);padding-left:1.2em;position:relative;">
+          <span style="position:absolute;left:0;color:var(--paja)">→</span>
+          Los datos de costos de producción corresponden a Boyacá y Cundinamarca únicamente.
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ── EQUIPO ── -->
+<section class="section equipo-section">
+  <div class="container">
+    <div class="section-eyebrow reveal">El equipo</div>
+    <h2 class="section-title reveal">Quiénes hicieron<br><em>este análisis.</em></h2>
+
+    <div class="equipo-grid reveal">
+      <div class="equipo-card">
+        <div class="equipo-avatar">E</div>
+        <div class="equipo-nombre">Esteban Mesa</div>
+        <div class="equipo-rol">Análisis · Modelado</div>
+      </div>
+      <div class="equipo-card">
+        <div class="equipo-avatar">F</div>
+        <div class="equipo-nombre">Farith Lopez</div>
+        <div class="equipo-rol">Datos · Visualización</div>
+      </div>
+      <div class="equipo-card">
+        <div class="equipo-avatar">M</div>
+        <div class="equipo-nombre">Milena Moreno</div>
+        <div class="equipo-rol">Limpieza · Series de tiempo</div>
+      </div>
+      <div class="equipo-card">
+        <div class="equipo-avatar">A</div>
+        <div class="equipo-nombre">Alex Martinez</div>
+        <div class="equipo-rol">Estadística · Costos</div>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:3rem;padding:2rem;background:var(--crema-oscuro);font-family:'DM Mono',monospace;font-size:0.72rem;letter-spacing:0.05em;line-height:1.8;color:var(--gris);">
+      <strong style="color:var(--tierra)">Fuentes de datos:</strong><br>
+      Observatorio FNFP — Precios mayoristas, abastecimiento y costos de producción papa Superior (2013–2026)<br>
+      Banco de la República — IPC de alimentos (2019–2025)<br><br>
+      <strong style="color:var(--tierra)">Repositorio:</strong>
+      <a href="https://github.com/estebanmesa147-boop/proyecto_papa_superior-" class="footer-link" target="_blank">github.com/estebanmesa147-boop/proyecto_papa_superior-</a><br>
+      <strong style="color:var(--tierra)">Programa:</strong> Bootcamp de Análisis de Datos 2026
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">¿Qué mueve el precio de la papa?</div>
+  <div class="footer-info">Papa Superior · Corabastos · Análisis 2019–2025</div>
+  <div class="footer-info" style="margin-top:0.5rem">Bootcamp de Análisis de Datos 2026 · Esteban Mesa · Farith Lopez · Milena Moreno · Alex Martinez</div>
+  <div style="margin-top:1.5rem">
+    <a href="https://github.com/estebanmesa147-boop/proyecto_papa_superior-" class="footer-link" target="_blank">Ver repositorio en GitHub →</a>
+  </div>
+</footer>
+
+<script>
+// ── CHARTS ──
+const TIERRA = '#3d2b1f';
+const CAMPO  = '#2d4a2d';
+const PAJA   = '#d4a847';
+const GRIS   = '#8a7a6a';
+const AZUL   = '#2c5f8a';
+const ROJO   = '#c0392b';
+
+Chart.defaults.font.family = "'Libre Baskerville', serif";
+Chart.defaults.color = GRIS;
+
+// Precio anual
+const ctxP = document.getElementById('chartPrecios').getContext('2d');
+new Chart(ctxP, {
+  type: 'line',
+  data: {
+    labels: ['2019','2020','2021','2022','2023','2024','2025'],
+    datasets: [{
+      label: 'Precio promedio ($/kg)',
+      data: [800, 650, 950, 1700, 1500, 1850, 1100],
+      borderColor: PAJA,
+      backgroundColor: 'rgba(212,168,71,0.1)',
+      borderWidth: 3,
+      pointBackgroundColor: PAJA,
+      pointRadius: 7,
+      pointHoverRadius: 10,
+      fill: true,
+      tension: 0.4
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` $${ctx.raw.toLocaleString('es-CO')}/kg`
+        }
+      }
+    },
+    scales: {
+      y: {
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: { callback: v => `$${v.toLocaleString('es-CO')}` }
+      },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// Abastecimiento
+const ctxA = document.getElementById('chartAbasto').getContext('2d');
+new Chart(ctxA, {
+  type: 'bar',
+  data: {
+    labels: ['2019','2020','2021','2022','2023','2024','2025'],
+    datasets: [{
+      label: 'Toneladas',
+      data: [290000, 240519, 280000, 322000, 322000, 295000, 275000],
+      backgroundColor: 'rgba(45,74,45,0.7)',
+      borderColor: CAMPO,
+      borderWidth: 2,
+      borderRadius: 0
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.raw.toLocaleString('es-CO')} ton`
+        }
+      }
+    },
+    scales: {
+      y: {
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: { callback: v => `${(v/1000).toFixed(0)}K ton` }
+      },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// R² comparativa
+const ctxR = document.getElementById('chartR2').getContext('2d');
+new Chart(ctxR, {
+  type: 'bar',
+  data: {
+    labels: ['M1: Solo abasto', 'M2: + IPC', 'M3: + Lag + Estacion.', 'M4: + Costos', 'M5: Completo'],
+    datasets: [{
+      label: 'R²',
+      data: [0.01, 0.08, 0.76, 0.69, 0.85],
+      backgroundColor: [
+        'rgba(140,116,100,0.6)',
+        'rgba(140,116,100,0.7)',
+        'rgba(74,124,74,0.7)',
+        'rgba(74,124,74,0.6)',
+        'rgba(45,74,45,0.9)',
+      ],
+      borderColor: [GRIS, GRIS, CAMPO, CAMPO, CAMPO],
+      borderWidth: 2,
+      borderRadius: 0
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` R² = ${ctx.raw} (${(ctx.raw*100).toFixed(0)}% explicado)`
+        }
+      }
+    },
+    scales: {
+      x: {
+        min: 0, max: 1,
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: { callback: v => `${(v*100).toFixed(0)}%` }
+      },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// Correlación — scatter simulado
+const ctxCorr = document.getElementById('chartCorr').getContext('2d');
+// Datos simulados mostrando dispersión sin correlación clara
+const scatterData = [];
+for(let i = 0; i < 83; i++) {
+  const tons = 18000 + Math.random() * 16000;
+  const precio = 500 + Math.random() * 2200;
+  scatterData.push({ x: tons, y: precio });
+}
+new Chart(ctxCorr, {
+  type: 'scatter',
+  data: {
+    datasets: [{
+      label: 'Mes',
+      data: scatterData,
+      backgroundColor: 'rgba(61,43,31,0.4)',
+      pointRadius: 5,
+      pointHoverRadius: 7
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.raw.x.toFixed(0)} ton — $${ctx.raw.y.toFixed(0)}/kg`
+        }
+      }
+    },
+    scales: {
+      y: {
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        title: { display: true, text: 'Precio promedio ($/kg)' },
+        ticks: { callback: v => `$${v.toLocaleString('es-CO')}` }
+      },
+      x: {
+        grid: { color: 'rgba(0,0,0,0.03)' },
+        title: { display: true, text: 'Toneladas mensuales' },
+        ticks: { callback: v => `${(v/1000).toFixed(0)}K t` }
+      }
+    }
+  }
+});
+
+// ── TABS ──
+function switchTab(id) {
+  document.querySelectorAll('.chart-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.reveal, .timeline-item').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
